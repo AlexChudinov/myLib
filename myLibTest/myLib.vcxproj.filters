@@ -13,30 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Заголовочные файлы\Base">
+      <UniqueIdentifier>{02812d01-d88b-4f16-932f-b403f1d34f36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\linearAlgebra">
+      <UniqueIdentifier>{b881e63b-986e-4923-934c-fb8337544fc3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="array_operations.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="myLibDefs.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
     <ClCompile Include="testMyLib.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Base\TemplateFor.h">
+      <Filter>Заголовочные файлы\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Base\myLibDefs.h">
+      <Filter>Заголовочные файлы\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\linearAlgebra\vectorTemplate.h">
+      <Filter>Заголовочные файлы\linearAlgebra</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
