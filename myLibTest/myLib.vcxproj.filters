@@ -29,13 +29,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Base\TemplateFor.h">
-      <Filter>Заголовочные файлы\Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\Base\myLibDefs.h">
       <Filter>Заголовочные файлы\Base</Filter>
     </ClInclude>
     <ClInclude Include="..\linearAlgebra\vectorTemplate.h">
+      <Filter>Заголовочные файлы\linearAlgebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Base\templateFor.h">
+      <Filter>Заголовочные файлы\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\linearAlgebra\matrixTemplate.h">
       <Filter>Заголовочные файлы\linearAlgebra</Filter>
     </ClInclude>
   </ItemGroup>

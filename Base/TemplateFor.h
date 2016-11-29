@@ -3,7 +3,6 @@
 #define ARRAY_OPERATIONS_H
 
 #include <cstddef>
-#include <type_traits>
 #include "myLibDefs.h"
 
 BASE_NAMESPACE_BEG
@@ -17,7 +16,7 @@ struct For
 	using next = For<begin + 1, end>;
 	
 #define DEF_CHECK_ENDS \
-	static_assert(begin < end, "Start value is bigger than the finish value in a template for loop");
+	static_assert(begin < end, "Start value is bigger than the finish value in a template for loop.");
 
 	template<typename O, typename ... T>
 	static inline void Do(O Op, T ... args)

@@ -149,8 +149,9 @@
     <ClCompile Include="testMyLib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Base\TemplateFor.h" />
     <ClInclude Include="..\Base\myLibDefs.h" />
+    <ClInclude Include="..\Base\templateFor.h" />
+    <ClInclude Include="..\linearAlgebra\matrixTemplate.h" />
     <ClInclude Include="..\linearAlgebra\vectorTemplate.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

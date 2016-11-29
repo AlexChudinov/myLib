@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../Base/TemplateFor.h"
+#include "../Base/templateFor.h"
 #include "../linearAlgebra/vectorTemplate.h"
 
 int main()
@@ -11,8 +11,8 @@ int main()
 	int s = 0;
 	auto sum = [&s](int num)->void { s += num; };
 	base::For<0, 11>::Do(sum);
-	std::cout << "Check template for loop (sum from 0 to 10):" << s << std::endl;
-	std::cout << "End of base testing.\n";
+	std::cout << "Check template for loop (sum from 0 to 10) = " << s << std::endl;
+	std::cout << "End of base testing.\n\n";
 
 	std::cout << "Test vector template: " << std::endl;
 	using v3d = math::vector_c<double, 3>;
@@ -29,7 +29,8 @@ int main()
 		<< "abs(v1/2.) = " << math::abs(v1 / 2.) << "\n"
 		<< "prod(v1) = " << math::prod(v1) << "\n"
 		<< "sum(v1 + v2) = " << math::sum(v1 + v2) << "\n"
-		<< "sum(v1 - v2) = " << math::sum(v1 - v2) << "\n";
+		<< "sum(v1 - v2) = " << math::sum(v1 - v2) << "\n"
+		<< "End of vector template testing.\n\n";
 
     return 0;
 }

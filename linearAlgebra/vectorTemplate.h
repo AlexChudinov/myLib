@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include <array>
 
-#include "../Base/TemplateFor.h"
+#include "../Base/templateFor.h"
 
 MATH_NAMESPACE_BEG
 
