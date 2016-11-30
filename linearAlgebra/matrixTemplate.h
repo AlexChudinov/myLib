@@ -2,9 +2,7 @@
 #ifndef MATRIXTEMPLATE_H
 #define MATRIXTEMPLATE_H
 
-#include <utility>
 #include "vectorTemplate.h"
-#include <vector>
 
 /**
 * Template defines simple math matrix operations
@@ -12,84 +10,117 @@
 
 MATH_NAMESPACE_BEG
 
-	using std::pair;
-	using std::vector;
-
+#define DEF_MATRIX_TEMPLATE_PARAMS T, M, N
 #define DEF_MATRIX_TEMPLATE template<class T, size_t M, size_t N>
 
-	DEF_MATRIX_TEMPLATE struct matrix_c;
-	DEF_MATRIX_TEMPLATE struct proxy_matrix_row;
-	DEF_MATRIX_TEMPLATE struct const_proxy_matrix_row;
-	DEF_MATRIX_TEMPLATE struct proxy_matrix_col;
-	DEF_MATRIX_TEMPLATE struct const_proxy_matrix_col;
-	DEF_MATRIX_TEMPLATE struct proxy_matrix_diag;
-	DEF_MATRIX_TEMPLATE struct const_proxy_matrix_diag;
+	DEF_MATRIX_TEMPLATE class matrix_c;
+	DEF_MATRIX_TEMPLATE class proxy_matrix_row;
+	DEF_MATRIX_TEMPLATE class const_proxy_matrix_row;
+	DEF_MATRIX_TEMPLATE class proxy_matrix_col;
+	DEF_MATRIX_TEMPLATE class const_proxy_matrix_col;
+	DEF_MATRIX_TEMPLATE class proxy_matrix_diag;
+	DEF_MATRIX_TEMPLATE class const_proxy_matrix_diag;
 
-	DEF_MATRIX_TEMPLATE	class matrix_c : public vector_c<vector_c<T, N>, M>
+	DEF_MATRIX_TEMPLATE	class matrix_c : private vector_c<vector_c<T, N>, M>
 	{
-		using vector_type = vector_c<T, N>;
-		using base = vector_c<vector_type, M>;
+		using matrix_row_type = vector_c<T, N>;
+		using base = vector_c<matrix_row_type, M>;
 		using type = matrix_c;
+
+		friend class proxy_matrix_row<DEF_MATRIX_TEMPLATE_PARAMS>;
+		friend class const_proxy_matrix_row<DEF_MATRIX_TEMPLATE_PARAMS>;
+		friend class proxy_matrix_col<DEF_MATRIX_TEMPLATE_PARAMS>;
+		friend class const_proxy_matrix_col<DEF_MATRIX_TEMPLATE_PARAMS>;
+		friend class proxy_matrix_diag<DEF_MATRIX_TEMPLATE_PARAMS>;
+		friend class const_proxy_matrix_diag<DEF_MATRIX_TEMPLATE_PARAMS>;
 
 		matrix_c() {}
 
+		/**
+		 * Fills the matrix with the values val
+		 */
 		explicit matrix_c(T const& val)
 			:
 			base(vector_type(val))
 		{}
 
-		matrix_c(std::initializer_list<vector_c<T, n>> list)
+		/**
+		 * Initialise the matrix with a list of row vectors
+		 */
+		matrix_c(std::initializer_list<matrix_row_type> list)
 			: base_type(list)
 		{}
 
-		inline proxy_matrix_col<T, m, n> column(size_t idx_col);
+		/**
+		 * Returns proxy to a matrix column
+		 */
+		inline proxy_matrix_col<DEF_MATRIX_TEMPLATE_PARAMS> column(size_t idx_col);
 
-		inline proxy_matrix_row<T, m, n> row(size_t idx_row);
+		/**
+		 * Returns proxy to a matrix row
+		 */
+		inline proxy_matrix_row<DEF_MATRIX_TEMPLATE_PARAMS> row(size_t idx_row);
 
-		inline proxy_matrix_diag<T, m, n> diag();
+		/**
+		 * Returns proxy to a matrix main diagonal = trace
+		 */
+		inline proxy_matrix_diag<DEF_MATRIX_TEMPLATE_PARAMS> diag();
 
-		inline const_proxy_matrix_col<T, m, n> column(size_t idx_col) const;
+		/**
+		* Returns proxy to a constant matrix column
+		*/
+		inline const_proxy_matrix_col<DEF_MATRIX_TEMPLATE_PARAMS> column(size_t idx_col) const;
 
-		inline const_proxy_matrix_row<T, m, n> row(size_t idx_row) const;
+		/**
+		* Returns proxy to a constant matrix row
+		*/
+		inline const_proxy_matrix_row<DEF_MATRIX_TEMPLATE_PARAMS> row(size_t idx_row) const;
 
-		inline const_proxy_matrix_diag<T, m, n> diag() const;
+		/**
+		* Returns proxy to a constant matrix main diagonal
+		*/
+		inline const_proxy_matrix_diag<DEF_MATRIX_TEMPLATE_PARAMS> diag() const;
+
+		/**
+		* Returns the number of a matrix rows
+		*/
+		constexpr size_t nrows() const { return M; }
+
+		/**
+		* Returns the number of a matrix columns
+		*/
+		constexpr size_t ncols() const { return N; }
 	};
 
-	template<class T, size_t M, size_t N>
-	struct proxy_matrix_col
+	DEF_MATRIX_TEMPLATE class proxy_matrix_col
 	{
-		using matrix = matrix_c<T, M, N>;
-		using const_col = const_proxy_matrix_col<T, M, N>;
-		using vector = vector_c<T, M>;
+		using matrix_type       = matrix_c<T, M, N>;
+		using const_column_type = const_proxy_matrix_col<T, M, N>;
+		using vector_column_type = vector_c<T, M>;
 
-		matrix& A_;
+		matrix_type& A_;
 		size_t idx_col_;
+	public:
 
-		inline proxy_matrix_col(matrix& A, size_t idx_col)
-			:
-			A_(A), idx_col_(idx_col) {}
+		inline proxy_matrix_col(matrix_type& A, size_t idx_col) : A_(A), idx_col_(idx_col) {}
 
 		inline T& operator[](size_t idx_row) { return A_[idx_row][idx_col_]; }
 
 		inline proxy_matrix_col& operator=(const proxy_matrix_col& c)
 		{
-			math::array_operations
-				<proxy_matrix_col, proxy_matrix_col, M - 1> op;
-			op.bmap(math::set_val<T>(), *this, c);
+			base::For<0, M>::Do([&](size_t idx) { (*this)[idx] = c[idx]; });
 			return *this;
 		}
 
-		inline proxy_matrix_col& operator=(const const_col& c)
+		inline proxy_matrix_col& operator=(const const_column_type& c)
 		{
-			math::array_operations<proxy_matrix_col, const_col, M - 1> op;
-			op.bmap(math::set_val<T>(), *this, c);
+			base::For<0, M>::Do([&](size_t idx) { (*this)[idx] = c[idx]; });
 			return *this;
 		}
 
-		inline proxy_matrix_col& operator=(const vector& c)
+		inline proxy_matrix_col& operator=(const vector_column_type& c)
 		{
-			math::array_operations<proxy_matrix_col, vector, M - 1> op;
-			op.bmap(math::set_val<T>(), *this, c);
+			base::For<0, M>::Do([&](size_t idx) { (*this)[idx] = c[idx]; });
 			return *this;
 		}
 	};
@@ -597,6 +628,7 @@ MATH_NAMESPACE_BEG
 	}
 
 #undef DEF_MATRIX_TEMPLATE
+#undef DEF_MATRIX_TEMPLATE_PARAMS
 
 MATH_NAMESPACE_END
 
