@@ -1,7 +1,9 @@
 #include <iostream>
+#include <ctime>
 
 #include "../Base/templateFor.h"
 #include "../linearAlgebra/vectorTemplate.h"
+#include "../linearAlgebra/matrixTemplate.h"
 
 int main()
 {
@@ -31,6 +33,26 @@ int main()
 		<< "sum(v1 + v2) = " << math::sum(v1 + v2) << "\n"
 		<< "sum(v1 - v2) = " << math::sum(v1 - v2) << "\n"
 		<< "End of vector template testing.\n\n";
+
+	std::cout << "Test matrix template" << std::endl;
+	using m3x3 = math::matrix_c<double, 3, 3>;
+	m3x3 m1{ {1., 2., 3.}, {4., 5., 6.}, {7., 8., 9.} };
+	m3x3 m2 = math::eye<double, 3>();
+	std::cout << "m1 = \n" << m1 << "\n";
+	std::cout << "m1 + m2 = \n" << (m1 + m2) << "\n";
+	std::cout << "m1 - (-m2) = \n" << (m1 - (-m2)) << "\n";
+	std::cout << "v1*m1 = " << (v1 * m1) << "\n";
+	std::cout << "m1*v1 = " << (m1 * v1) << "\n";
+	std::cout << "m1*m1 = \n" << (m1 * m1) << "\n";
+	std::cout << "m1/10 = \n" << (m1 / 10.) << "\n 3*(m1*10) = \n" << (3.*(m1*10.)) << "\n";
+	//Compare perfomance with matlab
+	std::clock_t start = std::clock();
+	const int nMults = 100000;
+	for (int j = 0; j < nMults; ++j) (m1*m1);
+	std::cout << "Time for " << nMults << " multiplications is " << (std::clock() - start) / CLOCKS_PER_SEC << " secunds.\n";
+	std::cout << "transpose(m1) =\n" << math::transpose(m1) << "\n";
+	std::cout << "cov = \n"
+		<< math::cov(std::vector<v3d>{ {1., 2., 3.}, { 4., 5., 6. }, { 7., 8., 9. } }) << "\n";
 
     return 0;
 }
