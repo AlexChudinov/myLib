@@ -10,10 +10,10 @@ BASE_NAMESPACE_BEG
 /**
  * Templates implementing recursive for-loop
  */
-template<size_t begin, size_t end>
+template<size_t begin, size_t end, size_t step = 1>
 struct For
 {
-	using next = For<begin + 1, end>;
+	using next = For<begin + step, end, step>;
 	
 #define DEF_CHECK_ENDS \
 	static_assert(begin < end, "Start value is bigger than the finish value in a template for loop.");
@@ -30,8 +30,8 @@ struct For
 /**
  * If begin == end then stop the loop
  */
-template<size_t stop>
-struct For<stop, stop>
+template<size_t stop, size_t step>
+struct For<stop, stop, step>
 {
 	template<typename O, typename ... T>
 	static inline void Do(O, T ... ){}

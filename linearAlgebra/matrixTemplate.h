@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include <numeric>
+#include <functional>
 
 #include "../Base/templateFor.h"
 #include "vectorTemplate.h"
@@ -29,6 +30,15 @@ MATH_NAMESPACE_BEG
 		using row_array = std::array<T, N>;
 		using base_type = std::array<T, M * N>;
 		using type = matrix_c;
+
+		/**
+		 * Data direction in a vector array
+		 */
+		enum DATA_DIRECTION
+		{
+			COLUMN_WISE = 0x00,
+			ROW_WISE = 0x01
+		};
 
 		/**
 		* Returns the number of a matrix rows
@@ -57,7 +67,6 @@ MATH_NAMESPACE_BEG
 		public:
 			inline const_matrix_column(const matrix_c& m, size_t col_idx) : m_(m), col_idx_(col_idx) {}
 			inline const T& operator[](size_t idx) const { return m_(idx, col_idx_); }
-
 		};
 
 		/**
@@ -128,9 +137,9 @@ MATH_NAMESPACE_BEG
 				return *this;
 			}
 
-			inline matrix_row& operator=(const row_array & c)
+			inline matrix_row& operator=(const row_array & r)
 			{
-				base::For<0, N>::Do([&](size_t idx) { (*this)[idx] = c[idx]; });
+				base::For<0, N>::Do([&](size_t idx) { (*this)[idx] = r[idx]; });
 				return *this;
 			}
 		};
@@ -155,23 +164,40 @@ MATH_NAMESPACE_BEG
 		matrix_c(std::initializer_list<row_array> list)
 		{
 			std::initializer_list<row_array>::iterator cur = list.begin();
-			base::For<0, M>::Do([&](size_t idx) 
+			base::For<0, M>::Do([&](size_t i) 
 			{
-				matrix_row _row(*this, idx);
+				matrix_row _row(*this, i);
 				_row = *(cur++);
 			});
-		}	
+		}
 	};
+
+	/**
+	 * Zeros matrix
+	 */
+	DEF_MATRIX_TEMPLATE_INLINE matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> zeros()
+	{
+		matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> res; res.fill(0.0);
+		return res;
+	}
+
+	/**
+	 * Matrix of ones
+	 */
+	DEF_MATRIX_TEMPLATE_INLINE matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> ones()
+	{
+		matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> res; res.fill(1.0);
+		return res;
+	}
 
 	/**
 	 * Identity matrix
 	 */
 	DEF_SQUARE_MATRIX_TEMPLATE_INLINE matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> eye()
 	{
-		matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> I;
-		I.fill(0.0);
-		base::For<0, M>::Do([&](size_t i) { I(i, i) = 1.0; });
-		return I;
+		matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> res = zeros<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>();
+		base::For<0, M>::Do([&](size_t i) { res(i, i) = 1.0; });
+		return res;
 	}
 
 	/**
@@ -337,52 +363,54 @@ MATH_NAMESPACE_BEG
 	*/
 	DEF_SQUARE_MATRIX_TEMPLATE_INLINE matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> cov
 	(
-		const std::vector<vector_c<T, M>>& vectors, //Vectors in a N-hyperspace
-		const std::vector<T>& w = std::vector<T>()  //Weightings
+		const std::vector<vector_c<T, M>>& vs,      //Vectors in a N-hyperspace
+		const std::vector<T>& ws                     //Weightings
 	)
 	{
 		using matrix = matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>;
 		using vector_c = vector_c<T, M>;
 
-		T norm_w;
-		vector_c mean_v;
-		matrix acc; acc.fill(0.0);
+		std::vector<T> wws(ws);
+		wws.resize(vs.size(), 1.0);
 
-		if (w.empty() || vectors.size() != w.size()) //Do not use weightings
+		T norm_w = std::accumulate(wws.begin(), wws.end(), 0.0);
+		vector_c mean_v = std::inner_product(wws.begin(), wws.end(), vs.begin(), vector_c(0.0)) / norm_w;
+		matrix acc = zeros<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>();
+
+		return std::inner_product(vs.begin(), vs.end(), wws.begin(), acc, std::plus<matrix>(),
+			[mean_v](const vector_c& v, const T& w)->matrix
 		{
-			norm_w = static_cast<T>(vectors.size());
-			mean_v = std::accumulate(vectors.begin(), vectors.end(), vector_c(0.0)) / norm_w;
-
-			return std::accumulate(vectors.begin(), vectors.end(),
-				acc, [&](matrix& m, const vector_c& v)->matrix&
+			matrix m;
+			vector_c vv = v - mean_v;
+			base::For<0, M>::Do([&](size_t i)
 			{
-				vector_c vv = v - mean_v;
-				base::For<0, M>::Do([&](size_t j)
-				{
-					m(j, j) += vv[j] * vv[j];
-					for (size_t k = 0; k < j; ++k) m(k, j) = m(j, k) += vv[j] * vv[k];
-				});
-				return m;
-			}) / (norm_w - 1.0);
-		}
-		else
+				m(i, i) = vv[i] * vv[i] * w;
+				for (size_t j = 0; j < i; ++j) m(i, j) = m(j, i) = vv[i] * vv[j] * w;
+			});
+			return m;
+		}) / norm_w * static_cast<T>(vs.size()) / static_cast<T>(vs.size() - 1);
+	}
+
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> cov(const std::vector<vector_c<T, M>> & vs)
+	{
+		using matrix = matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>;
+		using vector_c = vector_c<T, M>;
+
+		T norm_w = static_cast<T>(vs.size());
+		vector_c mean_v = std::accumulate(vs.begin(), vs.end(), vector_c(0.0)) / norm_w;
+		matrix acc = zeros<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>();
+
+		return std::accumulate(vs.begin(), vs.end(),
+			acc, [&](matrix& m, const vector_c& v)->matrix&
 		{
-			norm_w = std::accumulate(w.begin(), w.end(), 0.0);
-			mean_v = std::inner_product(w.begin(), w.end(), vectors.begin(), vector_c(0.0)) / norm_w;
-
-			size_t i = 0;
-			return std::accumulate(vectors.begin(), vectors.end(),
-				acc, [&](matrix& m, const vector_c& v)->matrix&
+			vector_c vv = v - mean_v;
+			base::For<0, M>::Do([&](size_t j)
 			{
-				vector_c vv = v - mean_v;
-				base::For<0, M>::Do([&](size_t j)
-				{
-					m(j, j) += w[i] * vv[j] * vv[j];
-					for (size_t k = 0; k < j; ++k) m(k, j) = m(j, k) += w[i] * vv[j] * vv[k];
-				});
-				return m;
-			}) / norm_w * static_cast<T>(vectors.size() / (vectors.size() - 1));
-		}
+				m(j, j) += vv[j] * vv[j];
+				for (size_t k = 0; k < j; ++k) m(k, j) = m(j, k) += vv[j] * vv[k];
+			});
+			return m;
+		}) / (norm_w - 1.0);
 	}
 
 	/**

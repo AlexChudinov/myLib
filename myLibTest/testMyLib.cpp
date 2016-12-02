@@ -52,7 +52,8 @@ int main()
 	std::cout << "Time for " << nMults << " multiplications is " << (std::clock() - start) / CLOCKS_PER_SEC << " secunds.\n";
 	std::cout << "transpose(m1) =\n" << math::transpose(m1) << "\n";
 	std::cout << "cov = \n"
-		<< math::cov(std::vector<v3d>{ {1., 2., 3.}, { 4., 5., 6. }, { 7., 8., 9. } }) << "\n";
+		<< math::cov(std::vector<v3d>{ {1., 2., 3.}, { 4., 5., 6. }, { 7., 8., 9. } }) << "\n"
+		<< math::cov(std::vector<v3d>{ {1., 2., 3.}, { 4., 5., 6. }, { 7., 8., 9. } }, {1.,1.,1.}) << "\n";
 
     return 0;
 }
