@@ -5,7 +5,6 @@
 #include <array>
 #include <vector>
 #include <numeric>
-#include <functional>
 
 #include "../Base/templateFor.h"
 #include "vectorTemplate.h"
@@ -15,6 +14,8 @@
 */
 
 MATH_NAMESPACE_BEG
+
+#define DEF_EPS_VAL(eps) constexpr T _Eps = eps
 
 #define DEF_MATRIX_TEMPLATE_PARAMS T, M, N
 #define DEF_SQUARE_MATRIX_TEMPLATE_PARAMS T, M, M
@@ -28,6 +29,8 @@ MATH_NAMESPACE_BEG
 	public:
 		using column_array = std::array<T, M>;
 		using row_array = std::array<T, N>;
+		using column_vector = vector_c<T, M>;
+		using row_vector = vector_c<T, N>;
 		using base_type = std::array<T, M * N>;
 		using type = matrix_c;
 
@@ -67,6 +70,12 @@ MATH_NAMESPACE_BEG
 		public:
 			inline const_matrix_column(const matrix_c& m, size_t col_idx) : m_(m), col_idx_(col_idx) {}
 			inline const T& operator[](size_t idx) const { return m_(idx, col_idx_); }
+			operator column_vector() const
+			{
+				column_vector res;
+				base::For<0, M>::Do([&](size_t i) { res[i] = (*this)[i]; });
+				return res;
+			}
 		};
 
 		/**
@@ -81,7 +90,7 @@ MATH_NAMESPACE_BEG
 			inline matrix_column(matrix_c& m, size_t col_idx) : m_(m), col_idx_(col_idx) {}
 			inline T& operator[](size_t idx) { return m_(idx, col_idx_); }
 
-			inline matrix_column& operator=(const matrix_column & c)
+			inline matrix_column& operator=(matrix_column & c)
 			{
 				base::For<0, M>::Do([&](size_t idx) { (*this)[idx] = c[idx]; });
 				return *this;
@@ -98,6 +107,13 @@ MATH_NAMESPACE_BEG
 				base::For<0, M>::Do([&](size_t idx) { (*this)[idx] = c[idx]; });
 				return *this;
 			}
+
+			operator column_vector()
+			{
+				column_vector res;
+				base::For<0, M>::Do([&](size_t i) { res[i] = (*this)[i]; });
+				return res;
+			}
 		};
 
 		/**
@@ -111,6 +127,13 @@ MATH_NAMESPACE_BEG
 		public:
 			inline const_matrix_row(const matrix_c& m, size_t row_idx) : m_(m), row_idx_(row_idx){}
 			inline const T& operator[](size_t idx) const { return m_(row_idx_, idx); }
+
+			operator row_vector() const
+			{
+				row_vector res;
+				base::For<0, N>::Do([&](size_t i) { res[i] = (*this)[i]; });
+				return res;
+			}
 		};
 
 		/**
@@ -125,7 +148,7 @@ MATH_NAMESPACE_BEG
 			inline matrix_row(matrix_c& m, size_t row_idx) : m_(m), row_idx_(row_idx){}
 			inline T& operator[](size_t idx) { return m_(row_idx_, idx); }
 
-			inline matrix_row& operator=(const matrix_row & r)
+			inline matrix_row& operator=(matrix_row & r)
 			{
 				base::For<0, N>::Do([&](size_t idx) { (*this)[idx] = r[idx]; });
 				return *this;
@@ -141,6 +164,13 @@ MATH_NAMESPACE_BEG
 			{
 				base::For<0, N>::Do([&](size_t idx) { (*this)[idx] = r[idx]; });
 				return *this;
+			}
+
+			operator row_vector()
+			{
+				row_vector res;
+				base::For<0, N>::Do([&](size_t i) { res[i] = (*this)[i]; });
+				return res;
 			}
 		};
 
@@ -412,119 +442,129 @@ MATH_NAMESPACE_BEG
 			return m;
 		}) / (norm_w - 1.0);
 	}
-
+	
 	/**
-	* Calculates first principal component
-	*/
-/*	template<class T, size_t N>
-	vector_c<T, N> pc1
-	(
-		const vector<vector_c<T, N>>& vectors,
-		const vector<T>& w,
-		T relTol = 1.0e-10,
-		size_t maxItter = 1000
-	)
+	 * Gram-Schmidt QR-factorization
+	 */
+	DEF_SQUARE_MATRIX_TEMPLATE using qr_factorization_result 
+		= std::pair< matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>, matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> >;
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE qr_factorization_result<T, M> qrGramSchmidt(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
 	{
-		using vector_c = vector_c<T, N>;
-		using matrix = matrix_c<T, N, N>;
+		using vector = vector_c<T, M>;
+		qr_factorization_result<T, M> res; res.first.fill(0.0); res.second.fill(0.0);
 
-		//Calculate cloud center
-		vector_c v0(0.0);
-		math::mean<vector_c, double, vector>(vectors, w, v0);
-
-		//Make first approximation
-		vector_c eigen_vector(0.0);
-		typename vector<T>::const_iterator it = w.begin();
-		for (const vector_c& v : vectors)
+		res.first.column(0) = vector(m.column(0)) / abs(vector(m.column(0)));
+		res.second(0, 0) = vector(m.column(0)) * vector(res.first.column(0));
+		
+		base::For<1, M>::Do([&](size_t i)
 		{
-			vector_c vv = v - v0;
-			if (eigen_vector*vv < 0.0)
-				eigen_vector -= (vv*vv)*vv * *(it++);
-			else
-				eigen_vector += (vv*vv)*vv * *(it++);
-		}
-
-		if (abs(eigen_vector) == 0) return eigen_vector;
-		eigen_vector /= abs(eigen_vector);
-
-		matrix covMatrix = cov(vectors, w, v0);
-		eigen_vector = covMatrix * eigen_vector;
-		T disp0, disp1 = abs(eigen_vector);
-		size_t iter = 0;
-		do
-		{
-			disp0 = disp1;
-			eigen_vector /= disp1;
-			eigen_vector = covMatrix * eigen_vector;
-			disp1 = abs(eigen_vector);
-		} while (std::fabs(disp1 - disp0) / disp0 > relTol
-			&& (++iter) != maxItter);
-
-		return eigen_vector;
-	}
-
-	/**
-	* Matrix determinant
-	*/
-/*	template<class T, size_t N>
-	inline T  det(const matrix_c<T, N, N>& m)
-	{
-		using matrix = matrix_c<T, N, N>;
-		using trace = const_proxy_matrix_diag<T, N, N>;
-
-		matrix tri(m);
-		int det_factor = 1;
-
-		auto matrix_triangulation = [&tri, &det_factor](size_t row)->void
-		{
-			size_t next_row = row + 1;
-			while (tri[row][row] == 0.0 && next_row < N)
-			{
-				std::swap(tri[row], tri[next_row++]);
-				det_factor = -det_factor;
+			vector coli = m.column(i);
+			for (size_t j = 0; j < i; ++j)
+			{ 
+				vector colj = res.first.column(j);
+				coli -= (vector(m.column(i)) * colj) * colj;
 			}
-			for (; next_row < N; ++next_row)
-			{
-				T coef = tri[next_row][row] / tri[row][row];
-				tri[next_row][row] = 0.0;
-				for (size_t col = row + 1; col < N; ++col)
-					tri[next_row][col] -= coef*tri[row][col];
-			}
-		};
 
-		For<0, N - 1, true>().Do(matrix_triangulation);
-		double res = static_cast<double>(det_factor);
-		math::array_operations<trace, trace, N - 1> op;
-		op.ufold(math::in_place_mul<T>(), res, tri.diag());
+			res.first.column(i) = coli / abs(coli);
+
+			for (size_t j = 0; j <= i; ++j)
+			{
+				res.second(j, i) = vector(m.column(i)) * vector(res.first.column(j));
+			}
+		});
 
 		return res;
 	}
 
 	/**
-	* Solves a linear equation system Ax=b,
-	* VarNum is an index in the x array
-	* determinant should be previously estimated
-	*/
-/*	template<class T, size_t N, size_t VarNum>
-	inline T solve
-	(
-		const matrix_c<T, N, N>& A,
-		const vector_c<T, N>& b,
-		const T& D)
+	 * Sum of a matrix diagonal elements
+	 */
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE T tr(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
 	{
-		static_assert(N > VarNum, "Index of a variable is too big");
+		T res = 0.0;
+		base::For<0, M>::Do([&](size_t i) { res += m(i, i); });
+		return res;
+	}
+	
+	/**
+	 * Get matrix diagonal elements
+	 */
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE vector_c<T, M> diag(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
+	{
+		vector_c<T, M> res;
+		base::For<0, M>::Do([&](size_t i) { res[i] = m(i, i); });
+		return res;
+	}
 
-		using matrix = matrix_c<T, N, N>;
+	/**
+	 * Calculates eigen values using QR factorization with the Gram-Schmidt algorithm
+	 */
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE vector_c<T, M> eigenValsQRGramSchmidt(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
+	{
+		DEF_EPS_VAL(std::numeric_limits<T>::epsilon() * 10.0);
 
-		matrix A_b;
+		using matrix = matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>;
+		using vector = vector_c<T, M>;
+ 
+		T eps = _Eps * *std::max_element(m.begin(), m.end());
+		qr_factorization_result<T, M> QR;
+		matrix A(m);
+		vector d;
 
-		for (size_t i = 0; i < VarNum; ++i) A_b.column(i) = A.column(i);
-		for (size_t i = VarNum + 1; i < N; ++i) A_b.column(i) = A.column(i);
+		do
+		{
+			d = diag(A);
+			QR = qrGramSchmidt(A);
+			A = QR.second * QR.first;
+		} while (abs(diag(A) - d) / abs(d) > eps);
 
-		A_b.column(VarNum) = b;
+		return diag(A);
+	}
 
-		return math::det(A_b) / D;
-	}*/
+	/**
+	 * Finds eigen vector with the biggest eigen value using simple eigenvalue algorithm
+	 */
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE vector_c<T, M> eigenVectorSimple(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
+	{
+		DEF_EPS_VAL(std::numeric_limits<T>::epsilon() * 10.0);
+		vector_c<T, M> cur, next(1.0);
+		int maxIterNum = 1000, iterCount = 0;
+
+		do
+		{
+			cur = next;
+			(next = m*cur) /= abs(next);
+		} while (abs(cur - next) > _Eps && iterCount++ < maxIterNum);
+
+		return next /= abs(next);
+	}
+
+	/**
+	* Finds all eigen vectors using simple eigenvalue algorithm
+	*/
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> 
+		eigenVectorsSimple(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
+	{
+		using vector = vector_c<T, M>;
+
+		DEF_EPS_VAL(std::numeric_limits<T>::epsilon() * 10.0);
+		matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> eigenVectors;
+		base::For<0, M>::Do([&](size_t i)
+		{
+			vector cur, next(1.0);
+			int maxIterNum = 1000, iterCount = 0;
+			do
+			{
+				cur = next;
+				next = m*cur;
+				for (size_t j = 0; j < i; ++j)
+					next -= (next*vector(eigenVectors.column(j))) * vector(eigenVectors.column(j));
+				next /= abs(next);
+			} while (abs(cur - next) > _Eps && iterCount++ < maxIterNum);
+			eigenVectors.column(i) = next;
+		});
+		return eigenVectors;
+	}
 
 #undef DEF_SQUARE_MATRIX_TEMPLATE_INLINE
 #undef DEF_MATRIX_TEMPLATE_INLINE

@@ -36,7 +36,7 @@ int main()
 
 	std::cout << "Test matrix template" << std::endl;
 	using m3x3 = math::matrix_c<double, 3, 3>;
-	m3x3 m1{ {1., 2., 3.}, {4., 5., 6.}, {7., 8., 9.} };
+	m3x3 m1{ {1., 2., 3.}, {4., 5., 6.}, {7., 8., 19.} };
 	m3x3 m2 = math::eye<double, 3>();
 	std::cout << "m1 = \n" << m1 << "\n";
 	std::cout << "m1 + m2 = \n" << (m1 + m2) << "\n";
@@ -47,14 +47,21 @@ int main()
 	std::cout << "m1/10 = \n" << (m1 / 10.) << "\n 3*(m1*10) = \n" << (3.*(m1*10.)) << "\n";
 	//Compare perfomance with matlab
 	std::clock_t start = std::clock();
-	const int nMults = 100000;
-	for (int j = 0; j < nMults; ++j) (m1*m1);
-	std::cout << "Time for " << nMults << " multiplications is " << (std::clock() - start) / CLOCKS_PER_SEC << " secunds.\n";
+	const int nMults = 1000;
+	for (int j = 0; j < nMults; ++j) math::qrGramSchmidt(m1);
+	std::cout << "Time for " << nMults << " multiplications is " << (std::clock() - start) / CLOCKS_PER_SEC << " seconds.\n";
 	std::cout << "transpose(m1) =\n" << math::transpose(m1) << "\n";
 	std::cout << "cov = \n"
 		<< math::cov(std::vector<v3d>{ {1., 2., 3.}, { 4., 5., 6. }, { 7., 8., 9. } }) << "\n"
-		<< math::cov(std::vector<v3d>{ {1., 2., 3.}, { 4., 5., 6. }, { 7., 8., 9. } }, {1.,1.,1.}) << "\n";
-
+		<< math::cov(std::vector<v3d>{ {1., 2., 3.}, { 4., 5., 6. }, { 7., 8., 9. } }, { 1.,1.,1. }) << "\n"
+		<< math::qrGramSchmidt(m1).first << "\n"
+		<< math::qrGramSchmidt(m1).second << "\n"
+		<< math::qrGramSchmidt(m1).first * math::qrGramSchmidt(m1).second << "\n"
+		<< "tr(m1) = " << math::tr(m1) << "\n"
+		<< "eigvals(m1) = " << math::eigenValsQRGramSchmidt(m1) << "\n"
+		<< "eigvect(m1) = " << math::eigenVectorSimple(m1) << "\n";
+	//Try calculate next eigen vectors
+	std::cout << "eigen vector = " << math::eigenVectorsSimple(m1) << "\n";
     return 0;
 }
 
