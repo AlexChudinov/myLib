@@ -7,6 +7,8 @@
 #include <utility>
 #include <algorithm>
 
+#include "../linearAlgebra/vectorTemplate.h"
+
 /**
  * Unordered graph to keep mesh connectivity information
  */
@@ -81,7 +83,7 @@ public:
         {
             label_list::const_oterator 
 				first = adjacency_list_[i].lower_bound(i),
-				last  = adjacency_list_[i];
+				last  = adjacency_list_[i].end();
             for(; first != last; ++first) observer(i, *first);
         }
     }
@@ -107,6 +109,65 @@ public:
 				for (label l : getNeighbour(current_label)) dfs_stack.push(l);
 			}
 		}
+	}
+	/**
+	 * Adds tetrahedra connectivity to a graph
+	 */
+	void addTet(const math::vector_c<label, 4>& verts)
+	{
+		addEdge(verts[0], verts[1]);
+		addEdge(verts[0], verts[2]);
+		addEdge(verts[0], verts[3]);
+		addEdge(verts[1], verts[2]);
+		addEdge(verts[1], verts[3]);
+		addEdge(verts[2], verts[3]);
+	}
+	/**
+	* Adds pyramid connectivity to a graph
+	*/
+	void addPyr(const math::vector_c<label, 5>& verts)
+	{
+		addEdge(verts[0], verts[1]);
+		addEdge(verts[0], verts[3]);
+		addEdge(verts[0], verts[4]);
+		addEdge(verts[1], verts[2]);
+		addEdge(verts[1], verts[4]);
+		addEdge(verts[2], verts[3]);
+		addEdge(verts[2], verts[4]);
+		addEdge(verts[3], verts[4]);
+	}
+	/**
+	* Adds wedge connectivity to a graph
+	*/
+	void addWedge(const math::vector_c<label, 6>& verts)
+	{
+		addEdge(verts[0], verts[1]);
+		addEdge(verts[0], verts[2]);
+		addEdge(verts[0], verts[3]);
+		addEdge(verts[1], verts[2]);
+		addEdge(verts[1], verts[4]);
+		addEdge(verts[2], verts[5]);
+		addEdge(verts[3], verts[4]);
+		addEdge(verts[3], verts[5]);
+		addEdge(verts[4], verts[5]);
+	}
+	/**
+	 * Adds hexa connectivity
+	 */
+	void addHexa(const math::vector_c<label, 8>& verts)
+	{
+		addEdge(verts[0], verts[1]);
+		addEdge(verts[0], verts[2]);
+		addEdge(verts[0], verts[4]);
+		addEdge(verts[1], verts[3]);
+		addEdge(verts[1], verts[5]);
+		addEdge(verts[2], verts[3]);
+		addEdge(verts[2], verts[6]);
+		addEdge(verts[3], verts[7]);
+		addEdge(verts[4], verts[5]);
+		addEdge(verts[4], verts[6]);
+		addEdge(verts[5], verts[7]);
+		addEdge(verts[6], verts[7]);
 	}
 };
 
