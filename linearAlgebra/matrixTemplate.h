@@ -376,6 +376,25 @@ MATH_NAMESPACE_BEG
 	}
 
 	/**
+	 * Elementwise division of matrices 
+	 */
+	DEF_MATRIX_TEMPLATE matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> elemWiseDiv(
+		const matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>& m1,
+		const matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>& m2)
+	{
+		matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> res;
+		base::For<0, M>::Do([&](size_t i)
+		{
+			base::For<0, N>::Do([&](size_t j)
+			{
+				res(i, j) = m1(i, j) / m2(i, j);
+			});
+		});
+
+		return res;
+	}
+
+	/**
 	* Matrix transposition
 	*/
 	DEF_MATRIX_TEMPLATE_INLINE matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> transpose(const matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>& m)
@@ -528,7 +547,7 @@ MATH_NAMESPACE_BEG
 	{
 		DEF_EPS_VAL(std::numeric_limits<T>::epsilon() * 10.0);
 		vector_c<T, M> cur, next(1.0);
-		int maxIterNum = 1000, iterCount = 0;
+		int maxIterNum = 100000, iterCount = 0;
 
 		do
 		{
@@ -546,22 +565,33 @@ MATH_NAMESPACE_BEG
 		eigenVectorsSimple(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
 	{
 		using vector = vector_c<T, M>;
+		using matrix = matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>;
 
 		DEF_EPS_VAL(std::numeric_limits<T>::epsilon() * 10.0);
-		matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> eigenVectors;
+		matrix eigenVectors, tm(m), iden(eye<T,M>());
+		vector e = iden.column(0);
+
 		base::For<0, M>::Do([&](size_t i)
 		{
-			vector cur, next(1.0);
-			int maxIterNum = 1000, iterCount = 0;
-			do
+			e = eigenVectorSimple(tm);
+			base::For<0, M>::Do([&](size_t j) 
+			{ 
+				tm.column(j) = vector(tm.column(j)) - (vector(tm.column(j)) * e) * e;
+				iden.column(j) = vector(iden.column(j)) - (vector(iden.column(j)) * e) * e;
+			});
+			eigenVectors.column(i) = e;
+
+			size_t k = 0;
+			while (true) //Choose any orthogonal to a previous e
 			{
-				cur = next;
-				next = m*cur;
-				for (size_t j = 0; j < i; ++j)
-					next -= (next*vector(eigenVectors.column(j))) * vector(eigenVectors.column(j));
-				next /= abs(next);
-			} while (abs(cur - next) > _Eps && iterCount++ < maxIterNum);
-			eigenVectors.column(i) = next;
+				vector iden_col = iden.column(k++);
+				T length = abs(iden_col);
+				if (length > _Eps)
+				{
+					e = iden_col / length;
+					return;
+				}
+			}
 		});
 		return eigenVectors;
 	}

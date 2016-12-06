@@ -36,7 +36,7 @@ int main()
 
 	std::cout << "Test matrix template" << std::endl;
 	using m3x3 = math::matrix_c<double, 3, 3>;
-	m3x3 m1{ {1., 2., 3.}, {4., 5., 6.}, {7., 8., 19.} };
+	m3x3 m1{ {1., 2., 3.}, {4., 5., 6.}, {7., 8., 9.} };
 	m3x3 m2 = math::eye<double, 3>();
 	std::cout << "m1 = \n" << m1 << "\n";
 	std::cout << "m1 + m2 = \n" << (m1 + m2) << "\n";
@@ -62,6 +62,7 @@ int main()
 		<< "eigvect(m1) = " << math::eigenVectorSimple(m1) << "\n";
 	//Try calculate next eigen vectors
 	std::cout << "eigen vector = " << math::eigenVectorsSimple(m1) << "\n";
+
     return 0;
 }
 

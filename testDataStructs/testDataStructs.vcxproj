@@ -19,11 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2936FE68-0FE0-4FF6-8B11-ED3F4FB70E69}</ProjectGuid>
+    <ProjectGuid>{79939527-36C6-4B75-880F-D766503DF098}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>myLib</RootNamespace>
+    <RootNamespace>testDataStructs</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>myLibTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,17 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="testMyLib.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\Base\myLibDefs.h" />
-    <ClInclude Include="..\Base\templateFor.h" />
-    <ClInclude Include="..\data_structs\graph.h" />
-    <ClInclude Include="..\linearAlgebra\matrixTemplate.h" />
-    <ClInclude Include="..\linearAlgebra\vectorTemplate.h" />
+    <ClCompile Include="testDataStucts.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

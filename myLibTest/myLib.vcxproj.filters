@@ -19,6 +19,9 @@
     <Filter Include="Заголовочные файлы\linearAlgebra">
       <UniqueIdentifier>{b881e63b-986e-4923-934c-fb8337544fc3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Заголовочные файлы\data_structs">
+      <UniqueIdentifier>{430760a3-9280-4753-a090-93a85dd7de5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="..\linearAlgebra\matrixTemplate.h">
       <Filter>Заголовочные файлы\linearAlgebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\data_structs\graph.h">
+      <Filter>Заголовочные файлы\data_structs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
