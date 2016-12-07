@@ -169,6 +169,25 @@ public:
 		addEdge(verts[5], verts[7]);
 		addEdge(verts[6], verts[7]);
 	}
+	/**
+	 * Adds triangle connectivity to a graph
+	 */
+	void addTri(const math::vector_c<label, 3>& verts)
+	{
+		addEdge(verts[0], verts[1]);
+		addEdge(verts[0], verts[2]);
+		addEdge(verts[1], verts[2]);
+	}
+	/**
+	 *Adds square connectivity to a graph
+	 */
+	void addSq(const math::vector_c<label, 3>& verts)
+	{
+		addEdge(verts[0], verts[1]);
+		addEdge(verts[0], verts[3]);
+		addEdge(verts[1], verts[2]);
+		addEdge(verts[2], verts[3]);
+	}
 };
 
 }
