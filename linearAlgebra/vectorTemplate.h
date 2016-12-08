@@ -177,7 +177,7 @@ MATH_NAMESPACE_BEG
 	/**
 	 * Input vector from an std::istringstream
 	 */
-	DEF_VECTOR_INLINE_TEMPLATE std::istream& operator >> (std::istream& in, const vector_c<T, N>& v)
+	DEF_VECTOR_INLINE_TEMPLATE std::istream& operator >> (std::istream& in, vector_c<T, N>& v)
 	{
 		base::For<0, N>::Do([&](size_t idx) { in >> v[idx]; });
 		return in;
