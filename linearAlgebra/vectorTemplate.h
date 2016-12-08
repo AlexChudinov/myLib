@@ -2,10 +2,10 @@
 #ifndef VECTORTEMPLATE_H
 #define VECTORTEMPLATE_H
 
+#include <initializer_list>
 #include <assert.h>
 #include <sstream>
 #include <cmath>
-#include <initializer_list>
 #include <array>
 
 #include "../Base/templateFor.h"
@@ -172,6 +172,15 @@ MATH_NAMESPACE_BEG
 		base::For<0, N>::Do([&out, v](size_t idx) { out << v[idx] << " "; });
 		out << ")";
 		return out;
+	}
+
+	/**
+	 * Input vector from an std::istringstream
+	 */
+	DEF_VECTOR_INLINE_TEMPLATE std::istream& operator >> (std::istream& in, const vector_c<T, N>& v)
+	{
+		base::For<0, N>::Do([&](size_t idx) { in >> v[idx]; });
+		return in;
 	}
 
 	/**
