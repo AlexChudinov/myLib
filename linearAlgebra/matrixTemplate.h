@@ -596,6 +596,47 @@ MATH_NAMESPACE_BEG
 		return eigenVectors;
 	}
 
+	/**
+	 * Returns determinant of a matrix
+	 * Calculates determinant using Gaus trigonalization
+	 */
+	DEF_SQUARE_MATRIX_TEMPLATE_INLINE T det_gaus(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
+	{
+		double factor = 1.0, product = 1.0;
+		for (size_t i = 0; i < M - 1; ++i)
+		{
+			while (m(i, i) == 0.0 && i < M - 1) //Swap rows
+			{
+				typename matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>::row_vector trow = m.row(i + 1);
+				m.row(i + 1) = m.row(i);
+				m.row(i++) = trow;
+				factor = -factor;
+			}
+
+			for (size_t j = i + 1; j < M; ++j)
+				m.row(j) -= m.row(i)*m(j, i) / m(i, i);
+		}
+
+		base::For<0, M>::Do([&](size_t i) { product *= m(i, i); });
+
+		return factor*product;
+	}
+
+	/**
+	 * Simple determinants
+	 */
+	template<typename T>
+	T det(const matrix_c<T, 2, 2>& m2x2)
+	{
+		return m2x2(0, 0)*m2x2(1, 1) - m2x2(0, 1)*m2x2(1, 0);
+	}
+	template<typename T>
+	T det(const matrix_c<T, 3, 3>& m3x3)
+	{
+		return m3x3(0, 0)*m3x3(1, 1)*m3x3(2, 2) + m3x3(0, 1)*m3x3(1, 2)*m3x3(2, 0) + m3x3(1, 0)*m3x3(2, 1)*m3x3(0, 2)
+			- m3x3(0, 2)*m3x3(1, 1)*m3x3(2, 0) + m3x3(1, 2)*m3x3(2, 1)*m3x3(0, 0) + m3x3(0, 1)*m3x3(1, 0)*m3x3(2, 2);
+	}
+
 #undef DEF_SQUARE_MATRIX_TEMPLATE_INLINE
 #undef DEF_MATRIX_TEMPLATE_INLINE
 #undef DEF_SQUARE_MATRIX_TEMPLATE
