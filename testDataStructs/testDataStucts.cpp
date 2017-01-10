@@ -13,5 +13,5 @@ int main()
 	g.addEdge(2, 3);
 	g.addEdge(3, 0);
 	//And print all labels along the search direction
-	g.dfsIterativeCompleteGraph(0, [](uint32_t)->bool { return true; }, [&](uint32_t l) { std::cout << l << "\n"; });
+	g.dfs_iterative(0, [](uint32_t)->bool { return true; }, [&](uint32_t l) { std::cout << l << "\n"; });
 }

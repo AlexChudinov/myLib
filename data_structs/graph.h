@@ -3,6 +3,7 @@
 
 #include <set>
 #include <stack>
+#include <queue>
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -74,7 +75,7 @@ public:
     }
 
     /**
-     * Iterates over unique connections passing corresponding labels into the observer functor
+     * Iterates over unique connections passing corresponding labels into an observer functor
      */
     template<typename Observer>
     void iterateOverUniqueConnections(Observer observer) const
@@ -89,10 +90,10 @@ public:
     }
 
     /**
-     * Graph deep search itterative from label into fully connected graph as a mesh should be
+     * Iterative deep first search from the start label
      */
     template<typename Obs, typename Pred>
-	void dfsIterativeCompleteGraph(label start, Pred pred, Obs obs) const
+	void dfs_iterative(label start, Pred pred, Obs obs) const
 	{
 		std::vector<bool> visited(adjacency_list_.size(), false);
 		std::stack<label> dfs_stack;
@@ -107,6 +108,28 @@ public:
 				obs(current_label);
 				visited[current_label] = true;
 				for (label l : getNeighbour(current_label)) dfs_stack.push(l);
+			}
+		}
+	}
+	/**
+	 * Iterative breadth first search from the start label
+	 */
+	template<typename Obs>
+	void bfs_iterative(label start, Obs obs) const
+	{
+		std::vector<bool> visited(adjacency_list_.size(), false);
+		std::queue<label> bfs_queue;
+		bfs_queue.push(start);
+
+		while (!bfs_queue.empty())
+		{
+			label current_label = bfs_queue.front(); bfs_queue.pop();
+
+			if (!visited[current_label])
+			{
+				visited[current_label] = true;
+				if (obs(current_label))
+					for (label l : getNeighbour(current_label)) bfs_queue.push(l);
 			}
 		}
 	}
