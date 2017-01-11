@@ -409,7 +409,7 @@ MATH_NAMESPACE_BEG
 	/**
 	* Matrix transposition
 	*/
-	DEF_MATRIX_TEMPLATE_INLINE matrix_c<DEF_MATRIX_TEMPLATE_PARAMS> transpose(const matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>& m)
+	DEF_MATRIX_TEMPLATE_INLINE matrix_c<T, N, M> transpose(const matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>& m)
 	{
 		matrix_c<T, N, M> res;
 		base::For<0, M>::Do([&](size_t i)
