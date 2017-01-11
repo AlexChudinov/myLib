@@ -108,6 +108,12 @@ MATH_NAMESPACE_BEG
 				return *this;
 			}
 
+			inline matrix_column& operator=(const column_vector & c)
+			{
+				base::For<0, M>::Do([&](size_t idx) { (*this)[idx] = c[idx]; });
+				return *this;
+			}
+
 			operator column_vector()
 			{
 				column_vector res;
@@ -161,6 +167,12 @@ MATH_NAMESPACE_BEG
 			}
 
 			inline matrix_row& operator=(const row_array & r)
+			{
+				base::For<0, N>::Do([&](size_t idx) { (*this)[idx] = r[idx]; });
+				return *this;
+			}
+
+			inline matrix_row& operator=(const row_vector & r)
 			{
 				base::For<0, N>::Do([&](size_t idx) { (*this)[idx] = r[idx]; });
 				return *this;
