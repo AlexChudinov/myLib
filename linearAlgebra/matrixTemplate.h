@@ -614,22 +614,25 @@ MATH_NAMESPACE_BEG
 	 */
 	DEF_SQUARE_MATRIX_TEMPLATE_INLINE T det_gaus(const matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>& m)
 	{
+		using row_vector = typename matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>::row_vector;
 		double factor = 1.0, product = 1.0;
+		matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS> tm = m;
+
 		for (size_t i = 0; i < M - 1; ++i)
 		{
-			while (m(i, i) == 0.0 && i < M - 1) //Swap rows
+			while (tm(i, i) == 0.0 && i < M - 1) //Swap rows
 			{
-				typename matrix_c<DEF_SQUARE_MATRIX_TEMPLATE_PARAMS>::row_vector trow = m.row(i + 1);
-				m.row(i + 1) = m.row(i);
-				m.row(i++) = trow;
+				row_vector trow = tm.row(i + 1);
+				tm.row(i + 1) = tm.row(i);
+				tm.row(i++) = trow;
 				factor = -factor;
 			}
 
 			for (size_t j = i + 1; j < M; ++j)
-				m.row(j) -= m.row(i)*m(j, i) / m(i, i);
+				tm.row(j) = row_vector(tm.row(j)) - row_vector(tm.row(i))*tm(j, i) / tm(i, i);
 		}
 
-		base::For<0, M>::Do([&](size_t i) { product *= m(i, i); });
+		base::For<0, M>::Do([&](size_t i) { product *= tm(i, i); });
 
 		return factor*product;
 	}
@@ -646,7 +649,7 @@ MATH_NAMESPACE_BEG
 	T det(const matrix_c<T, 3, 3>& m3x3)
 	{
 		return m3x3(0, 0)*m3x3(1, 1)*m3x3(2, 2) + m3x3(0, 1)*m3x3(1, 2)*m3x3(2, 0) + m3x3(1, 0)*m3x3(2, 1)*m3x3(0, 2)
-			- m3x3(0, 2)*m3x3(1, 1)*m3x3(2, 0) + m3x3(1, 2)*m3x3(2, 1)*m3x3(0, 0) + m3x3(0, 1)*m3x3(1, 0)*m3x3(2, 2);
+			- m3x3(0, 2)*m3x3(1, 1)*m3x3(2, 0) - m3x3(0, 1)*m3x3(1, 0)*m3x3(2, 2) - m3x3(0, 0)*m3x3(1, 2)*m3x3(2, 1);
 	}
 
 #undef DEF_SQUARE_MATRIX_TEMPLATE_INLINE
