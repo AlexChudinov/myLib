@@ -213,6 +213,18 @@ MATH_NAMESPACE_BEG
 		return res;
 	}
 
+	/**
+	 * Cross product of 3D vectors
+	 */
+	template<typename T> vector_c<T, 3> crossProduct(const vector_c<T, 3>& v1, const vector_c<T, 3>& v2)
+	{
+		vector_c<T, 3> res;
+		res[0] = v1[1] * v2[2] - v1[2] * v2[1];
+		res[1] = v1[2] * v2[0] - v1[0] * v2[2];
+		res[2] = v1[0] * v2[1] - v1[1] * v2[0];
+		return res;
+	}
+
 #undef DEF_VECTOR_INLINE_TEMPLATE
 
 MATH_NAMESPACE_END
