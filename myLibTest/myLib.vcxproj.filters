@@ -47,5 +47,8 @@
     <ClInclude Include="..\data_structs\graph.h">
       <Filter>Заголовочные файлы\data_structs</Filter>
     </ClInclude>
+    <ClInclude Include="..\linearAlgebra\linearInterpolation.h">
+      <Filter>Заголовочные файлы\linearAlgebra</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
