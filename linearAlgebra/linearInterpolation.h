@@ -73,6 +73,40 @@ std::tuple<Float, Float, Float> triInterpolation(
 	return res;
 }
 
+/**
+ * 3D - interpolation into a tetrahedral cell
+ */
+template<typename Float>
+std::tuple<Float, Float, Float, Float> tetInterpolation(
+	const vector_c<Float, 3>& pos,
+	const vector_c<Float, 3>& x0,
+	const vector_c<Float, 3>& x1,
+	const vector_c<Float, 3>& x2,
+	const vector_c<Float, 3>& x3
+)
+{
+	vector_c<Float, 3>
+		pos0 = pos - x0,
+		xx1 = x1 - x0,
+		xx2 = x2 - x0,
+		xx3 = x3 - x0;
+
+	//Solve linear equations system
+	matrix_c<Float, 3, 3> eqns, tm1;
+	eqns.column(0) = pos0; eqns.column(1) = xx1 - xx2; eqns.column(2) = xx1 - xx3;
+	tm1.column(0) = xx1;  tm1.column(1) = eqns.column(1); tm1.column(2) = eqns.column(2);
+
+	Float t1 = det(tm1) / det(eqns);
+
+	std::tuple<Float, Float, Float> t1t2t3 = triInterpolation(pos0*t1, xx1, xx2, xx3);
+
+	std::get<0>(t1t2t3) = std::get<0>(t1t2t3) / t1;
+	std::get<1>(t1t2t3) = std::get<1>(t1t2t3) / t1;
+	std::get<2>(t1t2t3) = std::get<2>(t1t2t3) / t1;
+
+	return std::tuple_cat(std::tie(1 - 1 / t1), t1t2t3);
+}
+
 MATH_NAMESPACE_END
 
 #endif // !_LINEAR_INTERPOLATION
