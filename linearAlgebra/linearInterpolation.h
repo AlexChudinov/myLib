@@ -15,14 +15,14 @@ MATH_NAMESPACE_BEG
 template<typename Float>
 std::tuple<Float, Float> lineInterpolation(
 	const vector_c<Float, 3>& pos, 
-	const vector_c<Float, 3>& line_start,
-	const vector_c<Float, 3>& line_end
+	const vector_c<Float, 3>& x0,
+	const vector_c<Float, 3>& x1
 )
 {
 	std::tuple<Float, Float> res;
 	vector_c<Float, 3>
-		line = line_end - line_start,
-		pos0 = pos - line_start;
+		line = x1 - x0,
+		pos0 = pos - x0;
 	Float t = pos0*line / sqr(line);
 	std::get<0>(res) = (1 - t);
 	std::get<1>(res) = t;

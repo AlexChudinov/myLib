@@ -187,7 +187,8 @@ MATH_NAMESPACE_BEG
 	 * Square length of a vector
 	 */
 	DEF_VECTOR_INLINE_TEMPLATE T sqr(const vector_c<T, N>& v) { return v*v; }
-		
+	DEF_VECTOR_INLINE_TEMPLATE T sqr(vector_c<T, N>&& v) { return v*v; }
+
 	/**
 	* Vector's euclidian length
 	*/
