@@ -24,7 +24,7 @@ std::tuple<Float, Float> lineInterpolation(
 		line = x1 - x0,
 		pos0 = pos - x0;
 	Float t = pos0*line / sqr(line);
-	std::get<0>(res) = (1 - t);
+	std::get<0>(res) = (1. - t);
 	std::get<1>(res) = t;
 	return res;
 }
@@ -66,8 +66,8 @@ std::tuple<Float, Float, Float> triInterpolation(
 
 	double fDet = det(eqns), t1 = det(mt1) / fDet, t2 = det(mt2) / fDet;
 
-	std::get<0>(res) = (1 - 1 / t2);
-	std::get<1>(res) = (1 - t1) / t2;
+	std::get<0>(res) = (1. - 1. / t2);
+	std::get<1>(res) = (1. - t1) / t2;
 	std::get<2>(res) = t1 / t2;
 
 	return res;
@@ -103,8 +103,9 @@ std::tuple<Float, Float, Float, Float> tetInterpolation(
 	std::get<0>(t1t2t3) = std::get<0>(t1t2t3) / t1;
 	std::get<1>(t1t2t3) = std::get<1>(t1t2t3) / t1;
 	std::get<2>(t1t2t3) = std::get<2>(t1t2t3) / t1;
+	t1 = 1. - 1. / t1;
 
-	return std::tuple_cat(std::tie(1 - 1 / t1), t1t2t3);
+	return std::tuple_cat(std::tie(t1), t1t2t3);
 }
 
 MATH_NAMESPACE_END
