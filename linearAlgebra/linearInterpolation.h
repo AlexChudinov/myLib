@@ -108,6 +108,43 @@ std::tuple<Float, Float, Float, Float> tetInterpolation(
 	return std::tuple_cat(std::tie(t1), t1t2t3);
 }
 
+/**
+ * Checks that two vectors v1 and v2 lies on a one side of the plane passing trought the zero and
+ * defined by vectors x1 and x2
+ */
+template<typename Float>
+bool isOnSamePlaneSide(
+	const vector_c<Float, 3>& v1,
+	const vector_c<Float, 3>& v2,
+	const vector_c<Float, 3>& x1,
+	const vector_c<Float, 3>& x2
+)
+{
+	vector_c<Float, 3>& norm = crossProduct(x1, x2);
+	return (v1*norm)*(v2*norm) > 0.0;
+}
+
+/**
+ * Checks if the point pos is inside a tetrahedral {x0, x1, x2, x3}
+ */
+template<typename Float>
+bool isInsideTet(
+	const vector_c<Float, 3>& pos,
+	const vector_c<Float, 3>& x0,
+	const vector_c<Float, 3>& x1,
+	const vector_c<Float, 3>& x2,
+	const vector_c<Float, 3>& x3
+)
+{
+	using vector3f = math::vector_c<Float, 3>;
+
+	return
+		isOnSamePlaneSide(pos - x0, x3 - x0, x1 - x0, x2 - x0)
+		&& isOnSamePlaneSide(pos - x0, x2 - x0, x1 - x0, x3 - x0)
+		&& isOnSamePlaneSide(pos - x0, x1 - x0, x2 - x0, x3 - x0)
+		&& isOnSamePlaneSide(pos - x1, x0 - x1, x2 - x1, x3 - x1);
+}
+
 MATH_NAMESPACE_END
 
 #endif // !_LINEAR_INTERPOLATION
