@@ -66,6 +66,15 @@ int main()
 	std::cout << "det_gaus(m1) = " << math::det_gaus(m1) << std::endl;
 	std::cout << "det(m1) = " << math::det(m1) << std::endl;
 
+	m3x3 cov;
+	std::vector<v3d> vects{ { 2., 2., 3. },{ 2.,0.,3. },{ 3.,3.,4. },{ 4., -2., 5. } };
+	std::cout << "\ncov = " << (cov = math::cov(vects)) 
+		<< "\n";
+	v3d e1, e2;
+	std::cout << "e1 = " << (e1 = math::eigenVectorSimple(cov)) << "\n";
+	std::for_each(vects.begin(), vects.end(), [&](v3d& vec) { vec = vec - (vec*e1)*e1; });
+	v3d n = math::crossProduct(e1, e2 = math::eigenVectorSimple(math::cov(vects)));
+	std::cout << "n = " << n << "\n";
     return 0;
 }
 
