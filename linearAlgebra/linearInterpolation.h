@@ -121,7 +121,7 @@ bool isOnSamePlaneSide(
 )
 {
 	vector_c<Float, 3>& norm = crossProduct(x1, x2);
-	return (v1*norm)*(v2*norm) > 0.0;
+	return math::sqr(v1*norm) >= 0.0;
 }
 
 /**
@@ -136,8 +136,6 @@ bool isInsideTet(
 	const vector_c<Float, 3>& x3
 )
 {
-	using vector3f = math::vector_c<Float, 3>;
-
 	return
 		isOnSamePlaneSide(pos - x0, x3 - x0, x1 - x0, x2 - x0)
 		&& isOnSamePlaneSide(pos - x0, x2 - x0, x1 - x0, x3 - x0)
