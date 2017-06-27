@@ -225,6 +225,15 @@ MATH_NAMESPACE_BEG
 		return res;
 	}
 
+	/**
+	 * Vector comparison operator
+	 */
+	DEF_VECTOR_INLINE_TEMPLATE bool operator==(const vector_c<T, N>& v1, const vector_c<T, N>& v2) {
+		bool res = true;
+		base::For<0, N>::Do([&res, v1, v2](size_t idx) { res &= (v1[idx] == v2[idx]); });
+		return res;
+	}
+
 #undef DEF_VECTOR_INLINE_TEMPLATE
 
 MATH_NAMESPACE_END

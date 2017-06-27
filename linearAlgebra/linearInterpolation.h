@@ -85,6 +85,9 @@ std::tuple<Float, Float, Float, Float> tetInterpolation(
 	const vector_c<Float, 3>& x3
 )
 {
+	//Check if position coincides with the x0
+	if (pos == x0) return std::make_tuple(1.0, 0.0, 0.0, 0.0);
+
 	vector_c<Float, 3>
 		pos0 = pos - x0,
 		xx1 = x1 - x0,
