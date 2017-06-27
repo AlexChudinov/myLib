@@ -121,7 +121,7 @@ bool isOnSamePlaneSide(
 )
 {
 	vector_c<Float, 3>& norm = crossProduct(x1, x2);
-	return math::sqr(v1*norm) >= 0.0;
+	return (v1*norm) * (v2*norm) >= 0.0;
 }
 
 /**
