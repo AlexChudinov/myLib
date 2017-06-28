@@ -41,6 +41,9 @@ std::tuple<Float, Float, Float> triInterpolation(
 	const vector_c<Float, 3>& x2
 )
 {
+	//Check if pos coincides with x0
+	if (pos == x0) return std::make_tuple(1.0, 0.0, 0.0);
+
 	std::tuple<Float, Float, Float> res;
 	vector_c<Float, 3>
 		pos0 = pos - x0,
