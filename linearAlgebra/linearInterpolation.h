@@ -93,7 +93,7 @@ std::tuple<Float, Float, Float, Float> tetInterpolation(
 
 	Float t1 = det(tm1) / det(eqns);
 
-	std::tuple<Float, Float, Float> t1t2t3 = triInterpolation(pos0*t1, xx1, xx2, xx3);
+	std::tuple<Float, Float, Float> t1t2t3 = triInterpolation(t1*pos0, xx1, xx2, xx3);
 
 	std::get<0>(t1t2t3) /= t1;
 	std::get<1>(t1t2t3) /= t1;
