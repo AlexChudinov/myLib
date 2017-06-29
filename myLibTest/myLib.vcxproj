@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Base\myLibDefs.h" />
+    <ClInclude Include="..\Base\solvers.h" />
     <ClInclude Include="..\Base\templateFor.h" />
     <ClInclude Include="..\Base\utilities.h" />
     <ClInclude Include="..\data_structs\graph.h" />

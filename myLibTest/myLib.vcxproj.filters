@@ -53,5 +53,8 @@
     <ClInclude Include="..\Base\utilities.h">
       <Filter>Заголовочные файлы\Base</Filter>
     </ClInclude>
+    <ClInclude Include="..\Base\solvers.h">
+      <Filter>Заголовочные файлы\Base</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
