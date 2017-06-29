@@ -154,6 +154,7 @@
     <ClInclude Include="..\Base\templateFor.h" />
     <ClInclude Include="..\Base\utilities.h" />
     <ClInclude Include="..\data_structs\graph.h" />
+    <ClInclude Include="..\Interpolation\InterpFun.h" />
     <ClInclude Include="..\linearAlgebra\linearInterpolation.h" />
     <ClInclude Include="..\linearAlgebra\matrixTemplate.h" />
     <ClInclude Include="..\linearAlgebra\vectorTemplate.h" />

@@ -22,6 +22,9 @@
     <Filter Include="Заголовочные файлы\data_structs">
       <UniqueIdentifier>{430760a3-9280-4753-a090-93a85dd7de5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Заголовочные файлы\Interpolation">
+      <UniqueIdentifier>{eada2251-c3ea-418d-b90a-431a0991cf17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -55,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="..\Base\solvers.h">
       <Filter>Заголовочные файлы\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Interpolation\InterpFun.h">
+      <Filter>Заголовочные файлы\Interpolation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
