@@ -15,6 +15,14 @@ struct For
 {
 	using next = For<begin + step, end, step>;
 
+	template<typename O>
+	static inline void Do(O Op)
+	{
+		static_assert(begin < end, "Start value is bigger than the finish value in a template for loop.");
+		Op(begin);
+		next::Do(Op);
+	}
+
 	template<typename O, typename ... T>
 	static inline void Do(O Op, T ... args)
 	{

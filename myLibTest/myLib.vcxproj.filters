@@ -32,9 +32,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Base\myLibDefs.h">
-      <Filter>Заголовочные файлы\Base</Filter>
-    </ClInclude>
     <ClInclude Include="..\linearAlgebra\vectorTemplate.h">
       <Filter>Заголовочные файлы\linearAlgebra</Filter>
     </ClInclude>
@@ -49,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="..\linearAlgebra\linearInterpolation.h">
       <Filter>Заголовочные файлы\linearAlgebra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Base\myLibDefs.h">
+      <Filter>Заголовочные файлы\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Base\utilities.h">
+      <Filter>Заголовочные файлы\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

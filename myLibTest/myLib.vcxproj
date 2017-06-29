@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="..\Base\myLibDefs.h" />
     <ClInclude Include="..\Base\templateFor.h" />
+    <ClInclude Include="..\Base\utilities.h" />
     <ClInclude Include="..\data_structs\graph.h" />
     <ClInclude Include="..\linearAlgebra\linearInterpolation.h" />
     <ClInclude Include="..\linearAlgebra\matrixTemplate.h" />

@@ -5,6 +5,9 @@
 #include <array>
 #include <vector>
 #include <numeric>
+#include <limits>
+#include <algorithm>
+#include <tuple>
 
 #include "../Base/templateFor.h"
 #include "vectorTemplate.h"
@@ -205,7 +208,7 @@ MATH_NAMESPACE_BEG
 		 */
 		matrix_c(std::initializer_list<row_array> list)
 		{
-			std::initializer_list<row_array>::iterator cur = list.begin();
+			typename std::initializer_list<row_array>::iterator cur = list.begin();
 			base::For<0, M>::Do([&](size_t i) 
 			{
 				matrix_row _row(*this, i);
@@ -312,7 +315,7 @@ MATH_NAMESPACE_BEG
 		vector_c<T, M> res(0.0);		
 		base::For<0, M>::Do([&](size_t i)
 		{
-			matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>::const_matrix_row _row = A.row(i);
+			typename matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>::const_matrix_row _row = A.row(i);
 			base::For<0, N>::Do([&](size_t j) { res[i] += _row[j] * x[j]; });
 		});
 		return res;
@@ -326,7 +329,7 @@ MATH_NAMESPACE_BEG
 		vector_c<T, N> res(0.0);
 		base::For<0, N>::Do([&](size_t i)
 		{
-			matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>::const_matrix_column _col = A.column(i);
+			typename matrix_c<DEF_MATRIX_TEMPLATE_PARAMS>::const_matrix_column _col = A.column(i);
 			base::For<0, M>::Do([&](size_t j) { res[i] += _col[j] * x[j]; });
 		});
 		return res;
@@ -344,10 +347,10 @@ MATH_NAMESPACE_BEG
 		res.fill(0.0);
 		base::For<0, M>::Do([&](size_t i)
 		{
-			matrix_c<T, M, N>::const_matrix_row _row = m1.row(i);
+			typename matrix_c<T, M, N>::const_matrix_row _row = m1.row(i);
 			base::For<0, K>::Do([&](size_t j)
 			{
-				matrix_c<T, N, K>::const_matrix_column _col = m2.column(j);
+				typename matrix_c<T, N, K>::const_matrix_column _col = m2.column(j);
 				base::For<0, N>::Do([&](size_t k) { res(i, j) += _row[k] * _col[k]; });
 			});
 		});
