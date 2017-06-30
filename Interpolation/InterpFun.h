@@ -47,13 +47,20 @@ public:
 		virtual bool valid() const { return false; }
 	};
 
+	/**
+	 * @brief Creates interpolating function of a certain type
+	 * @param type Type of an interpolation
+	 * @param xyVals (xi, yi) pairs
+	 * @param pars Additional parameters
+	 * @return Pointer to interpolating function interface
+	 */
 	static PInterpFun create(InterpFunType type, const XYDataVector& xyVals,
 		const InterpFunParams& pars) 
 	{
 		switch (type)
 		{
 		case ECubic: return PInterpFun(new ECubicSpline<Float>(xyVals, pars));
-		default: throw std::runtime_error("InterpFun::create: Unknown interpolation type.")
+		default: throw std::runtime_error("InterpFun::create: Unknown interpolation type.");
 		}
 	}
 
@@ -86,6 +93,7 @@ public:
 
 	/**
 	 * @class ECubicSplineParams
+	 * @brief Keeps weights in every point
 	 */
 	class ECubicSplineParams : public typename Base::InterpFunParams
 	{
@@ -97,12 +105,16 @@ public:
 		const DataVector& weights() const { return m_vW; }
 	};
 
+	/**
+	 * @param xyVals (xi, yi) pairs. It peaks only first two x values to calculate delta
+	 * @param params Additional params
+	 */
 	ECubicSpline(const typename Base::XYDataVector& xyVals,
 		const typename Base::InterpFunParams& params)
 	{
 		DataVector w;
 		if (params.valid()) 
-		{ //Calculates cmoothing spline
+		{ //Calculates smoothed cubic spline
 			w = static_cast<const ECubicSplineParams&>(params).weights();
 		}
 		else
@@ -131,19 +143,20 @@ public:
 	}
 
 	/**
-	 * @brief Calculates start x-value for interval
+	 * @brief Calculates index of coeffcients in array
 	 * @param x Current x-value
-	 * @return Start x-value for the interval
+	 * @return Index of an interval
 	 */
-	Float x0(Float x) const
+	virtual size_t intervalIdx(Float x) const
 	{
-		return std::floor((x - this->m_fX0) / this->m_fH);
+		return static_cast<size_t>(std::floor((x - this->m_fX0) / this->m_fH));
 	}
 
 	virtual Float interpolate(Float x)
 	{
-		Float fdX0 = x - this->x0(x);
-		return 0.0;
+		size_t idx = this->intervalIdx(x);
+		double dx = x - idx*this->m_fH;
+		return m_vCoefs[idx][0] + dx*(m_vCoefs[idx][1] + dx*(m_vCoefs[idx][2] + dx*m_vCoefs[idx][3]));
 	}
 
 private:
