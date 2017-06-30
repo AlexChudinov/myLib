@@ -55,7 +55,7 @@ public:
 	 * @return Pointer to interpolating function interface
 	 */
 	static PInterpFun create(InterpFunType type, const XYDataVector& xyVals,
-		const InterpFunParams& pars) 
+		const InterpFunParams& pars = InterpFunParams()) 
 	{
 		switch (type)
 		{
@@ -95,7 +95,7 @@ public:
 	 * @class ECubicSplineParams
 	 * @brief Keeps weights in every point
 	 */
-	class ECubicSplineParams : public typename Base::InterpFunParams
+	class ECubicSplineParams : public Base::InterpFunParams
 	{
 		const DataVector& m_vW;
 	public:
@@ -123,14 +123,14 @@ public:
 		}
 
 		DataVector a(w.size()), b(w.size()), c(w.size()), d(w.size());
-		DataVector x(w.size()), y(w.size);
+		DataVector x(w.size()), y(w.size());
 		this->m_fX0 = xyVals[0].first;
 		this->m_fH = xyVals[1].first - this->m_fX0;
 
 		x[0] = this->m_fX0; y[0] = xyVals[0].second;
 		for (size_t i = 1; i < w.size(); ++i)
 		{
-			x[i] += this->m_fH;
+			x[i] = x[i-1] + this->m_fH;
 			y[i] = xyVals[i].second;
 		}
 
@@ -138,8 +138,9 @@ public:
 			w.size(), a.data(), b.data(), c.data(), d.data(),
 			x.data(), y.data(), w.data());
 
+		this->m_vCoefs.resize(w.size());
 		for (size_t i = 0; i < w.size(); ++i)
-			this->m_vCoefs[i] = SplineCoef{ a, b, c, d };
+			this->m_vCoefs[i] = SplineCoef{ a[i], b[i], c[i] / 2., d[i] / 6. };
 	}
 
 	/**
@@ -149,7 +150,10 @@ public:
 	 */
 	virtual size_t intervalIdx(Float x) const
 	{
-		return static_cast<size_t>(std::floor((x - this->m_fX0) / this->m_fH));
+		int res = static_cast<int>((x - this->m_fX0) / this->m_fH);
+		if (res < 0) return 0;
+		if (res >= this->m_vCoefs.size()) return this->m_vCoefs.size() - 1;
+		return static_cast<size_t>(res);
 	}
 
 	virtual Float interpolate(Float x)
@@ -157,6 +161,18 @@ public:
 		size_t idx = this->intervalIdx(x);
 		double dx = x - idx*this->m_fH;
 		return m_vCoefs[idx][0] + dx*(m_vCoefs[idx][1] + dx*(m_vCoefs[idx][2] + dx*m_vCoefs[idx][3]));
+	}
+
+	virtual void diff()
+	{
+		size_t N = this->m_vCoefs.size();
+		for (size_t i = 0; i < N; ++i) {
+			Float 
+				a = this->m_vCoefs[i][1],
+				b = 2. * this->m_vCoefs[i][2],
+				c = 3. * this->m_vCoefs[i][3];
+			this->m_vCoefs[i] = SplineCoef{ a, b, c, 0.0 };
+		}
 	}
 
 private:

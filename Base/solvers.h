@@ -167,7 +167,7 @@ MATH_NAMESPACE_BEG
 		/***************/
 
 		//Calculates second order spline derivatives into c_
-		math::fivediagonalsolve(N, cl.get(), bl.get(), a, b, c, d, c_.get());
+		math::fivediagonalsolve(static_cast<int>(N), cl.get(), bl.get(), a, b, c, d, c_.get());
 
 		h1 = x[1] - x[0]; h2 = x[N - 1] - x[N - 2];
 		a[0] = y[0] - (c_[1] - c_[0]) / h1 * w[0];

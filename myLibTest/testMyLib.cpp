@@ -1,9 +1,13 @@
 #include <iostream>
+#include <fstream>
+#include <iterator>
 #include <ctime>
 
 #include "../Base/templateFor.h"
 #include "../linearAlgebra/vectorTemplate.h"
 #include "../linearAlgebra/matrixTemplate.h"
+
+#include "../Interpolation/InterpFun.h"
 
 int main()
 {
@@ -75,6 +79,25 @@ int main()
 	std::for_each(vects.begin(), vects.end(), [&](v3d& vec) { vec = vec - (vec*e1)*e1; });
 	v3d n = math::crossProduct(e1, e2 = math::eigenVectorSimple(math::cov(vects)));
 	std::cout << "n = " << n << "\n";
+
+	//Spline test
+	InterpFun<double>::PInterpFun pFun = InterpFun<double>::create(
+		InterpFun<double>::ECubic,
+		InterpFun<double>::XYDataVector{{1,1},{2,3},{3,9},{4,16},{5,25}}
+	);
+	
+	std::vector<double> x(100), y(100);
+	y[0] = pFun->interpolate(0.0);
+	for (size_t i = 1; i < 100; ++i) {
+		x[i] = x[i - 1] + .05;
+		y[i] = pFun->interpolate(x[i]);
+	}
+
+	std::ofstream out;
+	out.open("test_out.txt");
+	std::copy(y.begin(), y.end(), std::ostream_iterator<double>(out, "\n"));
+	out.close();
+
     return 0;
 }
 
